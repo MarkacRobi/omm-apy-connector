@@ -4,7 +4,7 @@ const build = path.resolve(__dirname, "build");
 module.exports = () => ({
   mode: 'production',
   entry: {
-    index: './src/index.ts',
+    index: './src/OmmApyConnector.ts',
   },
 
   devtool: 'source-map',

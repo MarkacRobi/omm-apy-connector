@@ -6,7 +6,9 @@ Simple wrapper library around icon sdk and omm interfaces providing straightforw
 
 ## Importing library
 
-In order to use library in your website, import index.js file from package (omm-apy-connector) in your .js file.
+In order to use library in your website, import index.js file from package (omm-apy-connector build) in your .js file.
+Use global variable ```ommApyConnector``` to access read methods. See showcase folder for examples.
+**NOTE** Import (script tag) library before the scripts you are using in it!
 
 ## Using library
 
