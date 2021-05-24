@@ -6,15 +6,21 @@ Simple wrapper library around icon sdk and omm interfaces providing straightforw
 
 ## Importing library
 
-In order to use library in your website, import index.js file from package (omm-apy-connector build) in your .js file.
+In order to use library in your website, import index.js file from package (omm-apy-connector build).
+
+Example:
+```<script src="../build/index.js" type="text/javascript"></script>```
+
+
 Use global variable ```ommApyConnector``` to access read methods. See showcase folder for examples.
+
 **NOTE** Import (script tag) library before the scripts you are using in it!
 
 ## Using library
 
-Library should be used by first instantiating ```OmmApyConnector``` class, i.e. ```const ommConnector = new OmmApyConnector()```.
+Library should be used through global ```ommApyConnector``` variable which provides access to read methods.
 
-Using that class you can access read methods such as:
+Some of the read methods available (check code for all):
 - ```getSpecificReserveData(reserve: string)``` -> returns specific ReserveData object which provides ```getSupplyApy()``` and ```getBorrowApy()```
   methods along with other properties. You can use this to get suppy and borrow APY for specific asset reserve.
 - ```getAllReserveData()``` -> returns AllReservesData object containing keys USDB, ICX and USDC to access specific reserve. You can use this to
@@ -22,7 +28,6 @@ Using that class you can access read methods such as:
 - ```getSupplyApyForReserve(assetTag: AssetTag)``` -> returns supply APY (in decimals) for specific reserve defined by assetTag (USDB, ICX or IUSDC).
 - ```getBorrowApyForReserve(assetTag: AssetTag)``` -> returns borrow APY (in decimals) for specific reserve defined by assetTag (USDB, ICX or IUSDC).
 - ```getIcxBalance(address: string)``` -> get ICX balance for specific address.
-
 
 
 **NOTE** APY-s are in decimals, to convert them to percentage multiply with 100.
