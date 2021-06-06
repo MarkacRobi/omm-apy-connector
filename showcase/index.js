@@ -6,17 +6,19 @@ ommApyConnector.getTokenDistributionForDay().then(res => {
     console.log("getTokenDistributionForDay: " + res);
 })
 
-// get Supply APY for USDb
-ommApyConnector.getSupplyApyForReserve("USDB").then(res => {
+// get Supply APY for USDS
+ommApyConnector.getSupplyApyForReserve("USDS").then(res => {
     console.log("getSupplyApyForReserve: " + res);
 })
 
-// get USDb Supply OMM rewards APY (formula from meeting minutes)
-ommApyConnector.USDbSupplyOmmRewardsApy().then(res => {
-    console.log("USDb Supply OMM rewards APY: " + res);
+// get USDS Supply OMM rewards APY (formula from meeting minutes)
+ommApyConnector.supplyOmmRewardsApy("USDS").then(res => {
+    console.log("USDS Supply OMM rewards APY: " + res);
 })
 
-// get USDb borrow APY (formula from meeting minutes)
-ommApyConnector.USDbBorrowApy().then(res => {
-    console.log("USDb borrow APY: " + res);
+// get USDS borrow APY (formula from meeting minutes)
+ommApyConnector.borrowOmmRewardsApy("USDS").then(res => {
+    console.log("USDS borrow OMM rewards APY: " + res);
 })
+
+

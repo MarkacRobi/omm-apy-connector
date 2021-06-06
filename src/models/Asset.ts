@@ -1,7 +1,7 @@
 export class Asset {
-  className: AssetClass; // e.g. "usdb"
-  name: AssetName; // e.g. "Bridge Dollars
-  tag: AssetTag; // e.g. USDb
+  className: AssetClass; // e.g. "usds"
+  name: AssetName; // e.g. "Stably USD"
+  tag: AssetTag; // e.g. USDS
 
   constructor(className: AssetClass, name: AssetName, tag: AssetTag) {
     this.className = className;
@@ -11,25 +11,25 @@ export class Asset {
 }
 
 export enum AssetClass {
-  USDb = "usdb",
+  USDS = "usds",
   ICX = "icx",
   USDC = "usdc"
 }
 
 export enum AssetName {
-  USDb = "Bridge Dollars",
+  USDS = "Stably USD",
   ICX = "ICON",
   USDC = "ICON USD Coin"
 }
 
 export enum AssetTag {
-  USDB = "USDB",
+  USDS = "USDS",
   ICX = "ICX",
   USDC = "IUSDC"
 }
 
 export const supportedAssetsMap: Map<AssetTag, Asset> = new Map([
-  [AssetTag.USDB, new Asset(AssetClass.USDb, AssetName.USDb, AssetTag.USDB)],
+  [AssetTag.USDS, new Asset(AssetClass.USDS, AssetName.USDS, AssetTag.USDS)],
   [AssetTag.ICX, new Asset(AssetClass.ICX, AssetName.ICX , AssetTag.ICX)],
   [AssetTag.USDC, new Asset(AssetClass.USDC, AssetName.USDC , AssetTag.USDC)],
 ]);

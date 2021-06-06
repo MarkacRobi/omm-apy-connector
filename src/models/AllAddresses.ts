@@ -16,8 +16,8 @@ export class AllAddresses {
     switch (assetTag) {
       case AssetTag.ICX:
         return this.collateral.sICX;
-      case AssetTag.USDB:
-        return this.collateral.USDB;
+      case AssetTag.USDS:
+        return this.collateral.USDS;
       case AssetTag.USDC:
         return this.collateral.IUSDC;
       default:
@@ -29,8 +29,8 @@ export class AllAddresses {
     switch (assetTag) {
       case AssetTag.ICX:
         return this.oTokens.oICX;
-      case AssetTag.USDB:
-        return this.oTokens.oUSDB;
+      case AssetTag.USDS:
+        return this.oTokens.oUSDS;
       case AssetTag.USDC:
         return this.oTokens.oIUSDC;
       default:
@@ -40,13 +40,13 @@ export class AllAddresses {
 }
 
 interface Collateral {
-  USDB: string;
+  USDS: string;
   sICX: string;
   IUSDC: string;
 }
 
 interface OTokens {
-  oUSDB: string;
+  oUSDS: string;
   oICX: string;
   oIUSDC: string;
 }

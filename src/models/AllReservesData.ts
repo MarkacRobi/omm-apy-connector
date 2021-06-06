@@ -1,12 +1,12 @@
 import {AssetTag} from "./Asset";
 
 export class AllReservesData {
-  USDB: ReserveData;
+  USDS: ReserveData;
   ICX: ReserveData;
   USDC: ReserveData;
 
-  constructor(USDb: ReserveData, sICX: ReserveData, IUSDC: ReserveData) {
-    this.USDB = USDb;
+  constructor(USDS: ReserveData, sICX: ReserveData, IUSDC: ReserveData) {
+    this.USDS = USDS;
     this.ICX = sICX;
     this.USDC = IUSDC;
   }
@@ -15,8 +15,8 @@ export class AllReservesData {
     switch (assetTag) {
       case AssetTag.ICX:
         return this.ICX;
-      case AssetTag.USDB:
-        return this.USDB;
+      case AssetTag.USDS:
+        return this.USDS;
       case AssetTag.USDC:
         return this.USDC;
       default:
@@ -29,8 +29,8 @@ export class AllReservesData {
       case AssetTag.ICX:
         this.ICX = reserveData;
         break;
-      case AssetTag.USDB:
-        this.USDB = reserveData;
+      case AssetTag.USDS:
+        this.USDS = reserveData;
         break;
       case AssetTag.USDC:
         this.USDC = reserveData;

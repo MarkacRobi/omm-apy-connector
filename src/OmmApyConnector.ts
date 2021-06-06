@@ -4,6 +4,7 @@ import {ScoreMethodNames} from "./models/ScoreMethodNames";
 import {AllReservesData, ReserveData} from "./models/AllReservesData";
 import {Mapper} from "./mapper";
 import {AssetTag} from "./models/Asset";
+import {Formulas} from "./Formulas";
 
 const IconService = require("icon-sdk-js");
 const {IconBuilder, IconAmount, IconConverter} = IconService;
@@ -28,14 +29,14 @@ export class OmmApyConnector {
     public tokenDistributionPerDay?: number;
 
     /**
-     * Get reserve data for USDb reserve
+     * Get reserve data for USDS reserve
      */
     public async getUSDbReserveData(): Promise<ReserveData> {
         if (!this.allScoreAddresses) {
             await this.loadAllAddresses();
         }
 
-        return this.getSpecificReserveData(this.allScoreAddresses!.collateralAddress(AssetTag.USDB));
+        return this.getSpecificReserveData(this.allScoreAddresses!.collateralAddress(AssetTag.USDS));
     }
 
     /**
@@ -54,7 +55,7 @@ export class OmmApyConnector {
 
     /**
      * @description Retrieve supply APY (liquidity rate) for specific asset tag.
-     * @param {AssetTag} assetTag - Tag of the asset we want tot retrieve APY for (USDB, ICX or IUSDC).
+     * @param {AssetTag} assetTag - Tag of the asset we want tot retrieve APY for (USDS, ICX or IUSDC).
      * @return {number} Reserve APY (liquidity rate).
      */
     public async getSupplyApyForReserve(assetTag: AssetTag): Promise<number> {
@@ -68,7 +69,7 @@ export class OmmApyConnector {
 
     /**
      * @description Retrieve borrow APY (borrow rate) for specific asset tag.
-     * @param {AssetTag} assetTag - Tag of the asset we want tot retrieve APY for (USDB, ICX or IUSDC).
+     * @param {AssetTag} assetTag - Tag of the asset we want tot retrieve APY for (USDS, ICX or IUSDC).
      * @return {number} Reserve APY (liquidity rate).
      */
     public async getBorrowApyForReserve(assetTag: AssetTag): Promise<number> {
@@ -90,39 +91,52 @@ export class OmmApyConnector {
         return icxValueToNormalValue(icxBalance);
     }
 
-    /** @description Retrieve USDb Supply OMM rewards APY (formula from Meeting minutes)
-     * formula: USDb liquidity rate/sum(sum(CollateralBalanceUSD *liquidityRate)) for all users * Token Distribution for that day * 0.2 *365
+    /**
+     * @description Retrieve supply APY (including OMM rewards) for specific reserve.
+     * @param {AssetTag} assetTag - Tag of the asset we want tot retrieve APY for (USDS, ICX or IUSDC).
+     * @return {number} APY.
      */
-    public async USDbSupplyOmmRewardsApy(): Promise<number> {
-        return this.getUSDbReserveData().then(async reserveData => {
-            const usdbLiquidityRate = reserveData.liquidityRate;
+    public async supplyOmmRewardsApy(assetTag: AssetTag): Promise<number> {
+        if (!this.allScoreAddresses) {
+            await this.loadAllAddresses();
+        }
+
+        return this.getSpecificReserveData(this.allScoreAddresses!.collateralAddress(assetTag)).then(async reserveData => {
+            const liquidityRate = reserveData.liquidityRate;
 
             if (!this.tokenDistributionPerDay) {
                 await this.loadTokenDistributionForDay()
             }
 
-            const allUsersCollateralSumRate = await this.getAllUsersCollateralSumRate();
+            const totalInterestOverAYear = await this.supplyTotalInterestOverAYear();
 
-            return usdbLiquidityRate / allUsersCollateralSumRate * this.tokenDistributionPerDay! * 0.2 * 365;
-        })
+            return Formulas.supplyOmmApyFormula(liquidityRate, totalInterestOverAYear, this.tokenDistributionPerDay!, 2)
+        });
     }
 
-    /** @description Retrieve USDb Borrow APY (formula from Meeting minutes)
-     * formula: USDb borrow rate/sum(sum(BorrowBalanceUSD *borrowRate)) * Token Distribution for that day * 0.2 *365
+    /**
+     * @description Retrieve borrow APY (including OMM rewards) for specific reserve.
+     * @param {AssetTag} assetTag - Tag of the asset we want tot retrieve APY for (USDS, ICX or IUSDC).
+     * @return {number} APY.
      */
-    public async USDbBorrowApy(): Promise<number> {
-        return this.getUSDbReserveData().then(async reserveData => {
-            const usdbBorrowRate = reserveData.borrowRate;
+    public async borrowOmmRewardsApy(assetTag: AssetTag): Promise<number> {
+        if (!this.allScoreAddresses) {
+            await this.loadAllAddresses();
+        }
+
+        return this.getSpecificReserveData(this.allScoreAddresses!.collateralAddress(assetTag)).then(async reserveData => {
+            const borrowRate = reserveData.borrowRate;
 
             if (!this.tokenDistributionPerDay) {
                 await this.loadTokenDistributionForDay()
             }
 
-            const allUsersBorrowSumRate = await this.getAllUsersBorrowSumRate();
+            const totalInterestOverAYear = await this.borrowTotalInterestOverAYear();
 
-            return usdbBorrowRate / allUsersBorrowSumRate * this.tokenDistributionPerDay! * 0.2 * 365;
-        })
+            return Formulas.borrowOmmApyFormula(borrowRate, totalInterestOverAYear, this.tokenDistributionPerDay!, 2)
+        });
     }
+
 
     /**
      * @description Get all SCORE addresses (collateral, oTokens, System Contract, ..)
@@ -166,7 +180,7 @@ export class OmmApyConnector {
 
         const allReserves = await this.iconService.call(tx).execute();
 
-        const newAllReserve = new AllReservesData(allReserves.USDB, allReserves.ICX, allReserves.USDC);
+        const newAllReserve = new AllReservesData(allReserves.USDS, allReserves.ICX, allReserves.USDC);
         Object.entries(newAllReserve).forEach((value: [string, ReserveData]) => {
             // @ts-ignore
             newAllReserve[value[0]] = Mapper.mapReserveData(value[1]);
@@ -198,7 +212,7 @@ export class OmmApyConnector {
      * @description sum(sum(CollateralBalanceUSD * liquidityRate)) for all users
      * @return {Number}
      */
-    public async getAllUsersCollateralSumRate(): Promise<number> {
+    public async supplyTotalInterestOverAYear(): Promise<number> {
         if (!this.allReservesData) {
             await this.loadAllReservesData();
         }
@@ -215,7 +229,7 @@ export class OmmApyConnector {
      * @description formula = sum(sum(BorrowBalanceUSD *borrowRate))
      * @return {Number}
      */
-    public async getAllUsersBorrowSumRate(): Promise<number> {
+    public async borrowTotalInterestOverAYear(): Promise<number> {
         if (!this.allReservesData) {
             await this.loadAllReservesData();
         }
